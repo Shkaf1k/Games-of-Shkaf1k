@@ -37,7 +37,7 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 40px 20px;
+            padding: 60px 20px 40px 20px;
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
@@ -60,6 +60,7 @@
             animation: scanlinePulse 6s infinite;
         }
 
+        /* Системная плашка слева вверху */
         .sys-info {
             position: fixed;
             top: 15px;
@@ -67,7 +68,59 @@
             font-size: 0.7rem;
             color: #444;
             letter-spacing: 1px;
-            z-index: 5;
+            z-index: 15;
+        }
+
+        /* Профиль игрока справа вверху */
+        .profile-bar {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 15;
+            font-size: 0.75rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .profile-bar input {
+            background: #050505;
+            border: 1px solid #333;
+            color: #ff3333;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            padding: 3px 6px;
+            width: 100px;
+            outline: none;
+            text-align: center;
+        }
+
+        .profile-bar input:focus {
+            border-color: #ff3333;
+        }
+
+        /* Всплывающее уведомление ачивок */
+        .achievement-popup {
+            position: fixed;
+            bottom: -100px;
+            right: 20px;
+            background: #121212;
+            border: 1px solid #ff3333;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            letter-spacing: 1px;
+        }
+
+        .achievement-popup.show {
+            bottom: 20px;
         }
 
         /* 15. Атмосферная цитата */
@@ -102,7 +155,7 @@
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* 20. Контейнер для карточек (центрование) */
+        /* 20. Контейнер для карточек */
         .cards-container {
             width: 100%;
             max-width: 520px;
@@ -279,13 +332,6 @@
             color: #000;
         }
 
-        /* 17. Разделитель блоков */
-        .divider {
-            border: none;
-            border-top: 1px dashed #222;
-            margin: 20px 0;
-        }
-
         footer {
             margin-top: 40px;
             font-size: 0.8rem;
@@ -320,6 +366,7 @@
             h1 { font-size: 1.6rem; }
             .game-card { padding: 15px; }
             .game-preview { height: 160px; }
+            .sys-info { display: none; }
         }
     </style>
 </head>
@@ -327,8 +374,20 @@
 
     <div class="sys-info">SYS_STATUS: ONLINE // GODOT_ENGINE</div>
 
+    <!-- Профиль Игрока -->
+    <div class="profile-bar">
+        <span>PLAYER:</span>
+        <input type="text" id="username" value="Guest" onchange="saveProfile()">
+        <span id="player-level" style="color: #ff3333;">[LVL 1]</span>
+    </div>
+
+    <!-- Уведомление об ачивке -->
+    <div id="achievement" class="achievement-popup">
+        🏆 <strong>АЧИВКА:</strong> <span id="ach-title">Новичок</span>
+    </div>
+
     <div class="splash-text">// PROJECT ARCHIVE</div>
-    <h1>МОИ ИГРЫ</h1>
+    <h1 onclick="clickSecret()">МОИ ИГРЫ</h1>
 
     <div class="cards-container">
         <!-- Карточка 1 -->
@@ -336,6 +395,7 @@
             <div class="status-badge">[ DEMO ]</div>
             
             <div class="game-preview">
+                <!-- Замените текст ниже на <img src="your-game.gif"> -->
                 [ ТРЕЙЛЕР / GIF ИГРЫ ]
             </div>
             
@@ -353,7 +413,7 @@
 
             <div class="platform-info">INPUT: [ ⌨️ / 🖱️ ] | PLATFORM: [ PC ]</div>
             
-            <a href="https://itch.io" class="btn" target="_blank">
+            <a href="https://itch.io" class="btn" target="_blank" onclick="clickPlay()">
                 ИГРАТЬ / СКАЧАТЬ <span class="btn-arrow">&gt;&gt;&gt;</span>
             </a>
         </div>
@@ -363,12 +423,50 @@
         <a href="https://itch.io" target="_blank">Itch.io</a>
         <a href="https://github.com" target="_blank">GitHub</a>
         
-        <!-- 10. Таймер сессии & 14. Динамический год -->
         <div class="uptime">SESSION_TIME: <span id="timer">0</span>s | © <span id="year"></span> DEV_LOG</div>
     </footer>
 
     <script>
-        // 2. Анимированный заголовок вкладки при уходе пользователя
+        // 1. Сохранение и загрузка ника
+        let nameInput = document.getElementById("username");
+        let savedName = localStorage.getItem("player_name");
+        if (savedName) nameInput.value = savedName;
+
+        function saveProfile() {
+            localStorage.setItem("player_name", nameInput.value);
+            showAchievement("Имя изменено!");
+        }
+
+        // 2. Показ уведомлений (Ачивок)
+        function showAchievement(text) {
+            let pop = document.getElementById("achievement");
+            document.getElementById("ach-title").innerText = text;
+            pop.classList.add("show");
+            setTimeout(() => pop.classList.remove("show"), 3500);
+        }
+
+        // 3. Достижение при первом визите
+        if (!localStorage.getItem("visited")) {
+            localStorage.setItem("visited", "true");
+            setTimeout(() => showAchievement("Первый визит в архив!"), 1200);
+        }
+
+        // 4. Секретный клик по заголовку
+        let secretClicks = 0;
+        function clickSecret() {
+            secretClicks++;
+            if (secretClicks === 5) {
+                document.getElementById("player-level").innerText = "[LVL 99]";
+                showAchievement("Секрет найден! Level Max");
+            }
+        }
+
+        // 5. Клик по кнопке играть
+        function clickPlay() {
+            showAchievement("Переход к проекту...");
+        }
+
+        // 6. Анимированный заголовок вкладки
         let docTitle = document.title;
         window.addEventListener("blur", () => {
             document.title = "[ СИСТЕМА ЖДЕТ... ]";
@@ -377,14 +475,20 @@
             document.title = docTitle;
         });
 
-        // 10. Таймер сессии (Uptime Counter)
+        // 7. Таймер сессии (Uptime Counter)
         let sec = 0;
         setInterval(() => {
             sec++;
             document.getElementById("timer").innerText = sec;
+            
+            // Ачивка за пробытие на сайте 1 минуту
+            if (sec === 60 && !localStorage.getItem("ach_time")) {
+                localStorage.setItem("ach_time", "true");
+                showAchievement("Исследователь (1 мин на сайте)");
+            }
         }, 1000);
 
-        // 14. Автоматический текущий год в футере
+        // 8. Динамический год в футере
         document.getElementById("year").innerText = new Date().getFullYear();
     </script>
 
