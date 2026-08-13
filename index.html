@@ -57,7 +57,6 @@
             z-index: 15;
         }
 
-        /* Навигация профиля вверху */
         .top-nav {
             position: fixed;
             top: 10px;
@@ -111,11 +110,10 @@
             margin-left: 2px;
         }
 
-        /* Боковые панели (Декор + Друзья) */
         .side-panel {
             position: fixed;
             top: 80px;
-            width: 200px;
+            width: 210px;
             background: #0d0d0d;
             border: 1px solid #222;
             padding: 12px;
@@ -136,12 +134,11 @@
             font-weight: bold;
         }
 
-        /* Список друзей */
         .friends-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 250px;
+            max-height: 230px;
             overflow-y: auto;
             margin-bottom: 10px;
         }
@@ -151,32 +148,38 @@
             align-items: center;
             justify-content: space-between;
             background: #121212;
-            padding: 4px 6px;
+            padding: 5px 8px;
             border: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
+
+        .friend-item:hover { border-color: #ff3333; }
 
         .friend-info {
             display: flex;
             align-items: center;
             gap: 6px;
+            overflow: hidden;
         }
 
         .friend-avatar {
-            width: 18px;
-            height: 18px;
+            width: 22px;
+            height: 22px;
             border-radius: 2px;
             object-fit: cover;
+            border: 1px solid #333;
         }
 
         .friend-remove {
             color: #555;
             cursor: pointer;
             font-weight: bold;
+            padding: 0 4px;
         }
 
         .friend-remove:hover { color: #ff3333; }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -209,7 +212,6 @@
             font-weight: bold;
         }
 
-        /* Оформление профиля */
         .profile-banner {
             width: 100%;
             height: 90px;
@@ -271,7 +273,6 @@
             outline: none;
         }
 
-        /* Ачивки список */
         .ach-list {
             display: flex;
             flex-direction: column;
@@ -301,7 +302,6 @@
         .ach-desc { font-size: 0.7rem; color: #777; }
         .ach-status { font-size: 0.65rem; color: #ff3333; }
 
-        /* Всплывашка Ачивок */
         .achievement-popup {
             position: fixed;
             bottom: -100px; right: 20px;
@@ -316,7 +316,6 @@
         }
         .achievement-popup.show { bottom: 20px; }
 
-        /* Контент сайта */
         .splash-text { font-size: 0.75rem; color: #555; margin-bottom: 10px; letter-spacing: 2px; }
         h1 { letter-spacing: 6px; font-size: 2.2rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); cursor: pointer; }
         h1:hover { text-shadow: -2px 0 #ff3333, 2px 0 #00ffff; }
@@ -354,7 +353,7 @@
 
     <div class="sys-info">SYS_STATUS: ONLINE // GODOT_ENGINE</div>
 
-    <!-- Левая панель (Декор / Виджет) -->
+    <!-- Левая панель -->
     <div class="side-panel side-left">
         <div class="side-title">⚡ СИСТЕМА</div>
         <div style="color:#666; font-size:0.7rem; line-height:1.5;">
@@ -370,12 +369,10 @@
     <!-- Правая панель (Друзья) -->
     <div class="side-panel side-right">
         <div class="side-title">👥 ДРУЗЬЯ</div>
-        <div class="friends-list" id="friends-list">
-            <!-- Друзья будут подгружаться через JS -->
-        </div>
-        <div style="display:flex; gap:4px;">
-            <input type="text" id="friend-name-input" placeholder="Имя друга..." style="width:100%; background:#050505; border:1px solid #333; color:#fff; font-size:0.7rem; padding:4px;">
-            <button class="nav-btn" onclick="addFriend()">+</button>
+        <div class="friends-list" id="friends-list"></div>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+            <button class="nav-btn" onclick="copyMyCode()" style="width:100%; color:#00ffff; border-color:#00ffff;">📋 МОЙ КОД ДРУГА</button>
+            <button class="nav-btn" onclick="addFriendByCode()" style="width:100%;">+ ДОБАВИТЬ КОД</button>
         </div>
     </div>
 
@@ -389,7 +386,7 @@
         </div>
     </div>
 
-    <!-- Модалка Профиля -->
+    <!-- Модалка Профиля Игрока -->
     <div id="profile-modal" class="modal">
         <div class="modal-box">
             <span class="close-btn" onclick="closeModal('profile-modal')">[X]</span>
@@ -410,7 +407,6 @@
                 <input type="text" id="input-name" value="Guest">
             </div>
             
-            <!-- Поля загрузки локальных файлов -->
             <div class="form-group">
                 <label>ЗАГРУЗИТЬ АВАТАРКУ (С ПК/ТЕЛЕФОНА):</label>
                 <input type="file" id="file-avatar" accept="image/*">
@@ -433,6 +429,33 @@
             </div>
 
             <button class="btn" onclick="saveProfileData()">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
+    <!-- Модалка Просмотра Профиля Друга -->
+    <div id="friend-view-modal" class="modal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal('friend-view-modal')">[X]</span>
+            <h3 style="color:#00ffff; margin-top:0;">ПРОФИЛЬ ДРУГА</h3>
+            
+            <div id="friend-modal-banner" class="profile-banner"></div>
+            <div class="profile-header">
+                <img id="friend-modal-avatar" class="profile-avatar" src="" alt="avatar">
+                <div>
+                    <strong id="friend-modal-name" style="color:#fff; font-size: 1.1rem;">-</strong>
+                    <span id="friend-modal-verified" class="verified-badge" style="display:none;">☑ VERIFIED</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>О СЕБЕ:</label>
+                <div id="friend-modal-bio" style="background:#080808; border:1px solid #222; padding:8px; font-size:0.8rem; min-height:40px;">-</div>
+            </div>
+
+            <div class="form-group">
+                <label>ДОСТИЖЕНИЯ ДРУГА:</label>
+                <div id="friend-modal-ach" style="font-size:0.75rem; color:#aaa;"></div>
+            </div>
         </div>
     </div>
 
@@ -480,14 +503,14 @@
     </footer>
 
     <script>
-        // Расширенный список ачивок
         const ACHIEVEMENTS = [
             { id: 'first_visit', title: 'Первый Визит', desc: 'Зайти на сайт впервые', icon: '🚪' },
             { id: 'profile_setup', title: 'Личность', desc: 'Настроить собственный профиль', icon: '👤' },
             { id: 'upload_avatar', title: 'Свой Стиль', desc: 'Загрузить аватарку с ПК', icon: '🖼️' },
             { id: 'upload_banner', title: 'Декоратор', desc: 'Установить баннер профиля', icon: '🎨' },
-            { id: 'first_friend', title: 'Дружелюбный', desc: 'Добавить первого друга в список', icon: '🤝' },
-            { id: 'squad', title: 'Банда', desc: 'Собрать 3 и более друзей', icon: '👥' },
+            { id: 'first_friend', title: 'Дружелюбный', desc: 'Добавить первого друга', icon: '🤝' },
+            { id: 'squad', title: 'Банда', desc: 'Собрать 3 друзей', icon: '👥' },
+            { id: 'view_friend', title: 'Шпион', desc: 'Посмотреть профиль друга', icon: '🔍' },
             { id: 'time_1m', title: 'Исследователь', desc: 'Провести на сайте 1 минуту', icon: '⏱️' },
             { id: 'time_5m', title: 'Зависание', desc: 'Провести на сайте 5 минут', icon: '⏳' },
             { id: 'play_click', title: 'Геймер', desc: 'Нажать на кнопку "Играть"', icon: '🎮' },
@@ -503,18 +526,14 @@
             bio: "Игрок системы.",
             isVerified: false,
             unlockedAch: [],
-            friends: [
-                { name: "CyberGamer", avatar: "https://picsum.photos/id/1012/50/50" }
-            ]
+            friends: []
         };
 
-        // Загрузка
         function loadData() {
             let saved = localStorage.getItem("user_system_data");
             if (saved) {
                 userState = Object.assign(userState, JSON.parse(saved));
             }
-            
             unlockAch('first_visit');
             updateUI();
         }
@@ -541,50 +560,86 @@
             renderFriends();
         }
 
-        // Вспомогательная функция считывания файла
         function readFileAsDataURL(file) {
             return new Promise((resolve) => {
-                if (!file) {
-                    resolve(null);
-                    return;
-                }
+                if (!file) { resolve(null); return; }
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result);
                 reader.readAsDataURL(file);
             });
         }
 
-        // Логика друзей
-        function renderFriends() {
-            let container = document.getElementById("friends-list");
-            container.innerHTML = "";
-            userState.friends.forEach((friend, idx) => {
-                container.innerHTML += `
-                    <div class="friend-item">
-                        <div class="friend-info">
-                            <img src="${friend.avatar}" class="friend-avatar" alt="avatar">
-                            <span>${friend.name}</span>
-                        </div>
-                        <span class="friend-remove" onclick="removeFriend(${idx})">✕</span>
-                    </div>
-                `;
+        // КОД ДРУГА И ПРОСМОТР ПРОФИЛЯ
+        function copyMyCode() {
+            let friendData = {
+                name: userState.name,
+                avatar: userState.avatar,
+                banner: userState.banner,
+                bio: userState.bio,
+                isVerified: userState.isVerified,
+                achCount: userState.unlockedAch.length
+            };
+            let code = btoa(unescape(encodeURIComponent(JSON.stringify(friendData))));
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Ваш код друга скопирован в буфер обмена! Отправьте его другу.");
             });
         }
 
-        function addFriend() {
-            let input = document.getElementById("friend-name-input");
-            let name = input.value.trim();
-            if (name !== "") {
-                let randomId = Math.floor(Math.random() * 800);
-                userState.friends.push({
-                    name: name,
-                    avatar: `https://picsum.photos/id/${randomId}/50/50`
-                });
-                input.value = "";
-                unlockAch('first_friend');
-                if (userState.friends.length >= 3) unlockAch('squad');
-                saveData();
+        function addFriendByCode() {
+            let code = prompt("Вставьте код друга сюда:");
+            if (!code) return;
+            try {
+                let decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
+                if (decoded && decoded.name) {
+                    let exists = userState.friends.some(f => f.name === decoded.name);
+                    if (exists) {
+                        alert("Этот друг уже есть в вашем списке!");
+                        return;
+                    }
+                    userState.friends.push(decoded);
+                    unlockAch('first_friend');
+                    if (userState.friends.length >= 3) unlockAch('squad');
+                    saveData();
+                    alert(`Друг ${decoded.name} успешно добавлен!`);
+                }
+            } catch (e) {
+                alert("Неверный код друга!");
             }
+        }
+
+        function openFriendModal(index) {
+            let friend = userState.friends[index];
+            if (!friend) return;
+
+            document.getElementById("friend-modal-name").innerText = friend.name;
+            document.getElementById("friend-modal-avatar").src = friend.avatar;
+            document.getElementById("friend-modal-banner").style.backgroundImage = `url('${friend.banner}')`;
+            document.getElementById("friend-modal-bio").innerText = friend.bio || "Нет описания.";
+            document.getElementById("friend-modal-verified").style.display = friend.isVerified ? "inline" : "none";
+            document.getElementById("friend-modal-ach").innerText = `Открыто достижений: ${friend.achCount || 0} / ${ACHIEVEMENTS.length}`;
+
+            unlockAch('view_friend');
+            openModal('friend-view-modal');
+        }
+
+        function renderFriends() {
+            let container = document.getElementById("friends-list");
+            container.innerHTML = "";
+            if (userState.friends.length === 0) {
+                container.innerHTML = `<div style="color:#444; font-size:0.65rem;">Список пуст</div>`;
+                return;
+            }
+            userState.friends.forEach((friend, idx) => {
+                container.innerHTML += `
+                    <div class="friend-item" onclick="openFriendModal(${idx})">
+                        <div class="friend-info">
+                            <img src="${friend.avatar}" class="friend-avatar" alt="avatar">
+                            <span style="font-size:0.75rem;">${friend.name}</span>
+                        </div>
+                        <span class="friend-remove" onclick="event.stopPropagation(); removeFriend(${idx})">✕</span>
+                    </div>
+                `;
+            });
         }
 
         function removeFriend(index) {
@@ -592,7 +647,6 @@
             saveData();
         }
 
-        // Ачивки логика
         function unlockAch(id) {
             if (!userState.unlockedAch.includes(id)) {
                 userState.unlockedAch.push(id);
@@ -627,7 +681,6 @@
             });
         }
 
-        // Верификация
         function verifyCode() {
             let code = document.getElementById("input-code").value.trim();
             if (code === "GODOT2026") {
@@ -640,7 +693,6 @@
             }
         }
 
-        // Сохранение профиля (с подгрузкой локальных файлов)
         async function saveProfileData() {
             let avatarFile = document.getElementById("file-avatar").files[0];
             let bannerFile = document.getElementById("file-banner").files[0];
@@ -665,14 +717,12 @@
             closeModal('profile-modal');
         }
 
-        // Модальные окна
         function openModal(id) {
             document.getElementById(id).classList.add("active");
             if (id === 'ach-modal') unlockAch('ach_viewer');
         }
         function closeModal(id) { document.getElementById(id).classList.remove("active"); }
 
-        // События
         let secretClicks = 0;
         function clickSecret() {
             secretClicks++;
@@ -681,7 +731,6 @@
 
         function clickPlay() { unlockAch('play_click'); }
 
-        // Таймер
         let sec = 0;
         setInterval(() => {
             sec++;
