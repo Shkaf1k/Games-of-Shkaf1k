@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Игры</title>
     <style>
-        /* Темный фон и пиксельный/моноширинный шрифт */
         body {
             background-color: #0a0a0a;
             color: #e0e0e0;
@@ -20,54 +19,89 @@
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
+            /* Кастомный крестообразный курсор */
+            cursor: crosshair;
         }
 
-        /* Эффект старого CRT-монитора (сканирующие полосы) */
+        /* Эффект старого CRT-монитора */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
             background-size: 100% 4px;
             z-index: 10;
             pointer-events: none;
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
+        /* Заголовок с легким эффектом мерцания */
         h1 {
-            letter-spacing: 5px;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            font-size: 2rem;
-            margin-bottom: 40px;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            animation: flicker 4s infinite;
         }
 
-        /* Контейнер карточки игры */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            52% { opacity: 0.3; }
+            54% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            82% { opacity: 0.4; }
+            83% { opacity: 1; }
+        }
+
+        /* Кнопка переключения аудио */
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #111;
+            border: 1px solid #333;
+            color: #888;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+
+        .audio-control:hover {
+            border-color: #ff3333;
+            color: #fff;
+        }
+
+        /* Карточка игры */
         .game-card {
             background-color: #121212;
             border: 1px solid #2a2a2a;
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
             padding: 25px;
             text-align: center;
-            box-shadow: 0 0 15px rgba(0,0,0,0.8);
-            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0,0,0,0.9);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             z-index: 1;
+            margin-bottom: 20px;
         }
 
-        /* Эффект при наведении на карточку */
         .game-card:hover {
             border-color: #ff3333;
-            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
-            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.25);
+            transform: translateY(-4px);
         }
 
-        /* Плейсхолдер для гифки/скриншота игры */
+        /* Место под гифку/трейлер */
         .game-preview {
             width: 100%;
-            height: 200px;
+            height: 220px;
             background-color: #050505;
             border: 1px dashed #333;
             display: flex;
@@ -75,48 +109,53 @@
             justify-content: center;
             color: #555;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .game-preview img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
         .game-title {
-            font-size: 1.4rem;
-            color: #ffffff;
-            margin-top: 0;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #fff;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
         }
 
         .game-description {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: #888;
-            line-height: 1.5;
+            line-height: 1.6;
             margin-bottom: 25px;
         }
 
-        /* Кнопка */
+        /* Анимированная кнопка */
         .btn {
             display: inline-block;
             color: #ff3333;
             text-decoration: none;
             border: 1px solid #ff3333;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-weight: bold;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
             transition: all 0.2s ease;
             background: transparent;
+            cursor: pointer;
         }
 
         .btn:hover {
             background-color: #ff3333;
             color: #000;
-            box-shadow: 0 0 10px #ff3333;
-            cursor: pointer;
+            box-shadow: 0 0 12px #ff3333;
         }
 
-        /* Подвал со ссылками на социалки/itch.io */
         footer {
-            margin-top: 50px;
+            margin-top: 30px;
             font-size: 0.8rem;
             color: #444;
             z-index: 1;
@@ -126,24 +165,35 @@
             color: #666;
             text-decoration: none;
             margin: 0 10px;
+            transition: color 0.2s;
         }
 
         footer a:hover {
-            color: #fff;
+            color: #ff3333;
         }
     </style>
 </head>
 <body>
 
-    <h1>Мои Игры</h1>
+    <!-- Переключатель звука в углу -->
+    <button class="audio-control" onclick="toggleAudio()">[ 🔊 SOUND: OFF ]</button>
+
+    <!-- Фоновая музыка (замените audio.mp3 на ваш файл при наличии) -->
+    <audio id="bg-audio" loop>
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+
+    <h1>МОИ ИГРЫ</h1>
 
     <div class="game-card">
-        <!-- Сюда можно вставить <img> с GIF или превью вашей игры -->
-        <div class="game-preview">[ ТРЕЙЛЕР / GIF ИГРЫ ]</div>
+        <div class="game-preview">
+            <!-- Чтобы вставить гифку, замените строчку ниже на: <img src="game.gif" alt="Game GIF"> -->
+            [ ТРЕЙЛЕР / GIF ИГРЫ ]
+        </div>
         
-        <h2 class="game-title">Название игры</h2>
+        <h2 class="game-title">Название Игры</h2>
         <p class="game-description">
-            Краткое описание вашей игры на Godot. Напишите пару предложений про жанр, атмосферу или сюжет.
+            Мрачный проект на Godot с использованием GDScript. Описание механики, сюжета или атмосфера игры.
         </p>
         
         <a href="https://itch.io" class="btn" target="_blank">ИГРАТЬ / СКАЧАТЬ</a>
@@ -154,5 +204,25 @@
         <a href="https://github.com" target="_blank">GitHub</a>
     </footer>
 
+    <script>
+        let audio = document.getElementById("bg-audio");
+        let btn = document.querySelector(".audio-control");
+        let playing = false;
+
+        function toggleAudio() {
+            if (!playing) {
+                audio.play().then(() => {
+                    btn.innerText = "[ 🔊 SOUND: ON ]";
+                    playing = true;
+                }).catch(() => {
+                    btn.innerText = "[ ❌ NO AUDIO FILE ]";
+                });
+            } else {
+                audio.pause();
+                btn.innerText = "[ 🔊 SOUND: OFF ]";
+                playing = false;
+            }
+        }
+    </script>
 </body>
 </html>
