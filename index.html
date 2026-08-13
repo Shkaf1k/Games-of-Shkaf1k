@@ -5,27 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Игры</title>
     <style>
-        /* 13. Кастомное выделение текста */
-        ::selection {
-            background: #ff3333;
-            color: #000;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* 1. CRT Scanline Pulse */
-        @keyframes scanlinePulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 0.5; }
-        }
-
+        ::selection { background: #ff3333; color: #000; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #222; }
         ::-webkit-scrollbar-thumb:hover { background: #ff3333; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scanlinePulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.5; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         body {
             background-color: #0a0a0a;
@@ -37,7 +25,7 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 60px 20px 40px 20px;
+            padding: 70px 20px 40px 20px;
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
@@ -45,7 +33,6 @@
             user-select: none;
         }
 
-        /* 6. Виньетка (затемнение по краям) + CRT эффект */
         body::before {
             content: " ";
             display: block;
@@ -60,7 +47,6 @@
             animation: scanlinePulse 6s infinite;
         }
 
-        /* Системная плашка слева вверху */
         .sys-info {
             position: fixed;
             top: 15px;
@@ -71,317 +57,291 @@
             z-index: 15;
         }
 
-        /* Профиль игрока справа вверху */
-        .profile-bar {
+        /* Навигация профиля вверху */
+        .top-nav {
             position: fixed;
             top: 10px;
             right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 15;
+        }
+
+        .nav-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #aaa;
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+
+        .profile-chip {
             background: #111;
             border: 1px solid #2a2a2a;
-            padding: 6px 12px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 15;
             font-size: 0.75rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            cursor: pointer;
         }
 
-        .profile-bar input {
+        .profile-chip:hover { border-color: #ff3333; }
+
+        .mini-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            object-fit: cover;
+            border: 1px solid #ff3333;
+        }
+
+        .verified-badge {
+            color: #00ffff;
+            font-weight: bold;
+            margin-left: 2px;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-box {
+            background: #111;
+            border: 1px solid #ff3333;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.2);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            color: #ff3333;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Оформление профиля */
+        .profile-banner {
+            width: 100%;
+            height: 90px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #333;
+            margin-bottom: -30px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            padding: 0 10px;
+            margin-bottom: 15px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #ff3333;
+            background: #000;
+            object-fit: cover;
+            z-index: 2;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.7rem;
+            color: #777;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
             background: #050505;
             border: 1px solid #333;
-            color: #ff3333;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            padding: 3px 6px;
-            width: 100px;
-            outline: none;
-            text-align: center;
+            color: #fff;
+            font-family: inherit;
+            padding: 6px;
+            box-sizing: border-box;
+            font-size: 0.8rem;
         }
 
-        .profile-bar input:focus {
+        .form-group input:focus, .form-group textarea:focus {
             border-color: #ff3333;
+            outline: none;
         }
 
-        /* Всплывающее уведомление ачивок */
+        /* Ачивки список */
+        .ach-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ach-item {
+            background: #080808;
+            border: 1px solid #222;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.5;
+        }
+
+        .ach-item.unlocked {
+            border-color: #ff3333;
+            opacity: 1;
+            background: #140808;
+        }
+
+        .ach-icon { font-size: 1.5rem; }
+        .ach-info { text-align: left; flex-grow: 1; }
+        .ach-title { font-size: 0.85rem; color: #fff; font-weight: bold; }
+        .ach-desc { font-size: 0.7rem; color: #777; }
+        .ach-status { font-size: 0.65rem; color: #ff3333; }
+
+        /* Всплывашка Ачивок */
         .achievement-popup {
             position: fixed;
-            bottom: -100px;
-            right: 20px;
+            bottom: -100px; right: 20px;
             background: #121212;
             border: 1px solid #ff3333;
             color: #fff;
             padding: 12px 20px;
             font-size: 0.8rem;
-            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.4);
             transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 100;
-            letter-spacing: 1px;
         }
+        .achievement-popup.show { bottom: 20px; }
 
-        .achievement-popup.show {
-            bottom: 20px;
-        }
+        /* Контент сайта */
+        .splash-text { font-size: 0.75rem; color: #555; margin-bottom: 10px; letter-spacing: 2px; }
+        h1 { letter-spacing: 6px; font-size: 2.2rem; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); cursor: pointer; }
+        h1:hover { text-shadow: -2px 0 #ff3333, 2px 0 #00ffff; }
+        h1::after { content: '_'; animation: blink 1s infinite; color: #ff3333; }
 
-        /* 15. Атмосферная цитата */
-        .splash-text {
-            font-size: 0.75rem;
-            color: #555;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            font-size: 2.2rem;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        /* 3. RGB-расщепление при наведении */
-        h1:hover {
-            text-shadow: -2px 0 #ff3333, 2px 0 #00ffff;
-        }
-
-        h1::after {
-            content: '_';
-            animation: blink 1s infinite;
-            color: #ff3333;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* 20. Контейнер для карточек */
-        .cards-container {
-            width: 100%;
-            max-width: 520px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
+        .cards-container { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 30px; }
         .game-card {
             background: radial-gradient(circle at center, #151515 0%, #101010 100%);
-            border: 1px solid #2a2a2a;
-            outline: 1px solid #111;
-            width: 100%;
-            padding: 25px;
-            box-sizing: border-box;
-            text-align: center;
-            /* 16. Пиксельная тень */
-            box-shadow: 5px 5px 0px #000;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
+            border: 1px solid #2a2a2a; outline: 1px solid #111; width: 100%; padding: 25px;
+            box-sizing: border-box; text-align: center; box-shadow: 5px 5px 0px #000;
+            transition: all 0.3s ease; position: relative; z-index: 1;
         }
-
-        /* 4. Акцентный красный уголок */
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            width: 8px;
-            height: 8px;
-            background: #ff3333;
-        }
-
-        .game-card:hover {
-            border-color: #ff3333;
-            box-shadow: 0 0 25px rgba(255, 51, 51, 0.2);
-            transform: translateY(-4px);
-        }
-
-        /* 18. Пульсация статуса */
-        .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 0.65rem;
-            background: #1a0000;
-            color: #ff3333;
-            border: 1px solid #ff3333;
-            padding: 3px 6px;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-
-        .game-card:hover .status-badge {
-            box-shadow: 0 0 8px #ff3333;
-        }
-
-        /* 8. Эффект статического шума & 23. Текстурная сетка */
-        .game-preview {
-            width: 100%;
-            height: 220px;
-            background: repeating-linear-gradient(45deg, #050505, #050505 10px, #0a0a0a 10px, #0a0a0a 20px);
-            border: 1px dashed #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #555;
-            margin: 15px 0 20px 0;
-            font-size: 0.85rem;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .game-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .game-card:hover .game-preview img {
-            transform: scale(1.05);
-        }
-
-        .game-title {
-            font-size: 1.5rem;
-            color: #fff;
-            margin: 0 0 10px 0;
-            letter-spacing: 2px;
-            text-align: left;
-        }
-
-        /* 22. "Вдавленная" панель для описания */
-        .game-description {
-            font-size: 0.88rem;
-            color: #888;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            text-align: left;
-            background: #080808;
-            padding: 12px;
-            border: 1px solid #1a1a1a;
-            box-shadow: inset 0 0 5px #000;
-        }
-
-        /* 9. Подсветка активных тегов */
-        .tags {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            color: #555;
-            background: #080808;
-            border: 1px solid #222;
-            padding: 2px 6px;
-            transition: all 0.2s;
-        }
-
-        .tag:hover {
-            color: #ff3333;
-            border-color: #ff3333;
-        }
-
-        /* 19. Иконки платформ и ввода */
-        .platform-info {
-            font-size: 0.75rem;
-            color: #555;
-            margin-bottom: 15px;
-            text-align: right;
-        }
-
-        /* 7. Анимированные стрелочки & 24. Индикатор загрузки */
-        .btn {
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            color: #ff3333;
-            text-decoration: none;
-            border: 1px solid #ff3333;
-            padding: 12px 0;
-            font-weight: bold;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            transition: all 0.2s ease;
-            background: transparent;
-            cursor: pointer;
-            text-align: center;
-            position: relative;
-        }
-
-        .btn-arrow {
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #ff3333;
-            color: #000;
-            box-shadow: 0 0 12px #ff3333;
-        }
-
-        .btn:hover .btn-arrow {
-            transform: translateX(5px);
-        }
-
-        /* 25. Контрастный режим клика */
-        .btn:active {
-            transform: scale(0.98);
-            background-color: #fff;
-            color: #000;
-        }
-
-        footer {
-            margin-top: 40px;
-            font-size: 0.8rem;
-            color: #444;
-            z-index: 1;
-            text-align: center;
-        }
-
-        /* 21. Системные скобки у ссылок */
-        footer a {
-            color: #666;
-            text-decoration: none;
-            margin: 0 10px;
-            transition: all 0.2s;
-        }
-
-        footer a::before { content: '['; color: #333; }
-        footer a::after { content: ']'; color: #333; }
-
-        footer a:hover {
-            color: #ff3333;
-        }
-
-        /* 10. Индикатор аптайма */
-        .uptime {
-            margin-top: 15px;
-            font-size: 0.65rem;
-            color: #333;
-        }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 1.6rem; }
-            .game-card { padding: 15px; }
-            .game-preview { height: 160px; }
-            .sys-info { display: none; }
-        }
+        .game-card::before { content: ''; position: absolute; top: -1px; left: -1px; width: 8px; height: 8px; background: #ff3333; }
+        .game-card:hover { border-color: #ff3333; box-shadow: 0 0 25px rgba(255, 51, 51, 0.2); transform: translateY(-4px); }
+        .status-badge { position: absolute; top: 15px; right: 15px; font-size: 0.65rem; background: #1a0000; color: #ff3333; border: 1px solid #ff3333; padding: 3px 6px; }
+        .game-preview { width: 100%; height: 220px; background: repeating-linear-gradient(45deg, #050505, #050505 10px, #0a0a0a 10px, #0a0a0a 20px); border: 1px dashed #333; display: flex; align-items: center; justify-content: center; color: #555; margin: 15px 0 20px 0; font-size: 0.85rem; }
+        .game-title { font-size: 1.5rem; color: #fff; margin: 0 0 10px 0; text-align: left; }
+        .game-description { font-size: 0.88rem; color: #888; line-height: 1.6; margin-bottom: 20px; text-align: left; background: #080808; padding: 12px; border: 1px solid #1a1a1a; }
+        .tags { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tag { font-size: 0.7rem; color: #555; background: #080808; border: 1px solid #222; padding: 2px 6px; }
+        .platform-info { font-size: 0.75rem; color: #555; margin-bottom: 15px; text-align: right; }
+        .btn { display: block; width: 100%; color: #ff3333; border: 1px solid #ff3333; padding: 12px 0; font-weight: bold; font-size: 0.85rem; letter-spacing: 2px; background: transparent; cursor: pointer; text-decoration: none; }
+        .btn:hover { background-color: #ff3333; color: #000; box-shadow: 0 0 12px #ff3333; }
+        footer { margin-top: 40px; font-size: 0.8rem; color: #444; text-align: center; }
+        footer a { color: #666; text-decoration: none; margin: 0 10px; }
+        footer a::before { content: '['; } footer a::after { content: ']'; }
+        .uptime { margin-top: 15px; font-size: 0.65rem; color: #333; }
     </style>
 </head>
 <body>
 
     <div class="sys-info">SYS_STATUS: ONLINE // GODOT_ENGINE</div>
 
-    <!-- Профиль Игрока -->
-    <div class="profile-bar">
-        <span>PLAYER:</span>
-        <input type="text" id="username" value="Guest" onchange="saveProfile()">
-        <span id="player-level" style="color: #ff3333;">[LVL 1]</span>
+    <!-- Шапка профиля -->
+    <div class="top-nav">
+        <button class="nav-btn" onclick="openModal('ach-modal')">🏆 АЧИВКИ</button>
+        <div class="profile-chip" onclick="openModal('profile-modal')">
+            <img id="chip-avatar" class="mini-avatar" src="https://picsum.photos/50" alt="avatar">
+            <span id="chip-name">Guest</span>
+            <span id="chip-verified" class="verified-badge" style="display:none;">☑</span>
+        </div>
     </div>
 
-    <!-- Уведомление об ачивке -->
+    <!-- Модалка Профиля -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal('profile-modal')">[X]</span>
+            <h3 style="color:#ff3333; margin-top:0;">ПРОФИЛЬ ИГРОКА</h3>
+            
+            <div id="modal-banner" class="profile-banner"></div>
+            <div class="profile-header">
+                <img id="modal-avatar" class="profile-avatar" src="" alt="avatar">
+                <div>
+                    <strong id="modal-display-name" style="color:#fff; font-size: 1.1rem;">Guest</strong>
+                    <span id="modal-verified" class="verified-badge" style="display:none;">☑ VERIFIED</span>
+                    <div id="modal-lvl" style="font-size:0.75rem; color:#ff3333;">LVL 1</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>НИКНЕЙМ:</label>
+                <input type="text" id="input-name" value="Guest">
+            </div>
+            <div class="form-group">
+                <label>URL АВАТАРКИ:</label>
+                <input type="text" id="input-avatar" placeholder="https://site.com/image.png">
+            </div>
+            <div class="form-group">
+                <label>URL БАННЕРА:</label>
+                <input type="text" id="input-banner" placeholder="https://site.com/banner.png">
+            </div>
+            <div class="form-group">
+                <label>О СЕБЕ (BIO):</label>
+                <textarea id="input-bio" rows="2" placeholder="Ваше описание..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>КОД ВЕРИФИКАЦИИ (Введи GODOT2026):</label>
+                <div style="display:flex; gap: 5px;">
+                    <input type="text" id="input-code" placeholder="Код...">
+                    <button class="nav-btn" onclick="verifyCode()" style="color:#00ffff; border-color:#00ffff;">ОК</button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="saveProfileData()">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
+    <!-- Модалка Ачивок -->
+    <div id="ach-modal" class="modal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal('ach-modal')">[X]</span>
+            <h3 style="color:#ff3333; margin-top:0;">ДОСТИЖЕНИЯ</h3>
+            <div class="ach-list" id="achievements-container"></div>
+        </div>
+    </div>
+
+    <!-- Всплывающее уведомление -->
     <div id="achievement" class="achievement-popup">
         🏆 <strong>АЧИВКА:</strong> <span id="ach-title">Новичок</span>
     </div>
@@ -390,31 +350,21 @@
     <h1 onclick="clickSecret()">МОИ ИГРЫ</h1>
 
     <div class="cards-container">
-        <!-- Карточка 1 -->
         <div class="game-card">
             <div class="status-badge">[ DEMO ]</div>
-            
-            <div class="game-preview">
-                <!-- Замените текст ниже на <img src="your-game.gif"> -->
-                [ ТРЕЙЛЕР / GIF ИГРЫ ]
-            </div>
-            
+            <div class="game-preview">[ ТРЕЙЛЕР / GIF ИГРЫ ]</div>
             <h2 class="game-title">Название Игры</h2>
-            
             <div class="tags">
                 <span class="tag">Godot 4</span>
                 <span class="tag">GDScript</span>
                 <span class="tag">Horror</span>
             </div>
-
             <div class="game-description">
                 Мрачный проект на Godot. Напишите здесь пару слов о механике, сюжете или атмосфере вашей игры.
             </div>
-
             <div class="platform-info">INPUT: [ ⌨️ / 🖱️ ] | PLATFORM: [ PC ]</div>
-            
             <a href="https://itch.io" class="btn" target="_blank" onclick="clickPlay()">
-                ИГРАТЬ / СКАЧАТЬ <span class="btn-arrow">&gt;&gt;&gt;</span>
+                ИГРАТЬ / СКАЧАТЬ &gt;&gt;&gt;
             </a>
         </div>
     </div>
@@ -422,75 +372,150 @@
     <footer>
         <a href="https://itch.io" target="_blank">Itch.io</a>
         <a href="https://github.com" target="_blank">GitHub</a>
-        
         <div class="uptime">SESSION_TIME: <span id="timer">0</span>s | © <span id="year"></span> DEV_LOG</div>
     </footer>
 
     <script>
-        // 1. Сохранение и загрузка ника
-        let nameInput = document.getElementById("username");
-        let savedName = localStorage.getItem("player_name");
-        if (savedName) nameInput.value = savedName;
+        // Список ачивок
+        const ACHIEVEMENTS = [
+            { id: 'first_visit', title: 'Первый Визит', desc: 'Зайти на сайт впервые', icon: '🚪' },
+            { id: 'profile_setup', title: 'Личность', desc: 'Настроить собственный профиль', icon: '👤' },
+            { id: 'time_1m', title: 'Исследователь', desc: 'Провести на сайте 1 минуту', icon: '⏱️' },
+            { id: 'time_5m', title: 'Зависание', desc: 'Провести на сайте 5 минут', icon: '⏳' },
+            { id: 'play_click', title: 'Геймер', desc: 'Нажать на кнопку "Играть"', icon: '🎮' },
+            { id: 'secret_click', title: 'Хакер', desc: 'Найти секретный клик на заголовке', icon: '👾' },
+            { id: 'verified', title: 'Подтвержденный', desc: 'Получить галочку верификации', icon: '☑️' },
+            { id: 'ach_viewer', title: 'Коллекционер', desc: 'Открыть вкладку достижений', icon: '🏆' }
+        ];
 
-        function saveProfile() {
-            localStorage.setItem("player_name", nameInput.value);
-            showAchievement("Имя изменено!");
+        let userState = {
+            name: "Guest",
+            avatar: "https://picsum.photos/id/1025/100/100",
+            banner: "https://picsum.photos/id/1060/500/200",
+            bio: "Игрок системы.",
+            isVerified: false,
+            unlockedAch: []
+        };
+
+        // Загрузка
+        function loadData() {
+            let saved = localStorage.getItem("user_system_data");
+            if (saved) userState = JSON.parse(saved);
+            
+            // Ачивка за визит
+            unlockAch('first_visit');
+            updateUI();
         }
 
-        // 2. Показ уведомлений (Ачивок)
-        function showAchievement(text) {
+        function saveData() {
+            localStorage.setItem("user_system_data", JSON.stringify(userState));
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById("chip-name").innerText = userState.name;
+            document.getElementById("chip-avatar").src = userState.avatar;
+            document.getElementById("modal-avatar").src = userState.avatar;
+            document.getElementById("modal-display-name").innerText = userState.name;
+            document.getElementById("modal-banner").style.backgroundImage = `url('${userState.banner}')`;
+            
+            document.getElementById("input-name").value = userState.name;
+            document.getElementById("input-avatar").value = userState.avatar;
+            document.getElementById("input-banner").value = userState.banner;
+            document.getElementById("input-bio").value = userState.bio;
+
+            let verBadges = [document.getElementById("chip-verified"), document.getElementById("modal-verified")];
+            verBadges.forEach(el => el.style.display = userState.isVerified ? "inline" : "none");
+
+            renderAchievements();
+        }
+
+        // Ачивки логика
+        function unlockAch(id) {
+            if (!userState.unlockedAch.includes(id)) {
+                userState.unlockedAch.push(id);
+                saveData();
+                let ach = ACHIEVEMENTS.find(a => a.id === id);
+                if (ach) showAchievementPopup(ach.title);
+            }
+        }
+
+        function showAchievementPopup(title) {
             let pop = document.getElementById("achievement");
-            document.getElementById("ach-title").innerText = text;
+            document.getElementById("ach-title").innerText = title;
             pop.classList.add("show");
             setTimeout(() => pop.classList.remove("show"), 3500);
         }
 
-        // 3. Достижение при первом визите
-        if (!localStorage.getItem("visited")) {
-            localStorage.setItem("visited", "true");
-            setTimeout(() => showAchievement("Первый визит в архив!"), 1200);
+        function renderAchievements() {
+            let container = document.getElementById("achievements-container");
+            container.innerHTML = "";
+            ACHIEVEMENTS.forEach(ach => {
+                let unlocked = userState.unlockedAch.includes(ach.id);
+                container.innerHTML += `
+                    <div class="ach-item ${unlocked ? 'unlocked' : ''}">
+                        <div class="ach-icon">${ach.icon}</div>
+                        <div class="ach-info">
+                            <div class="ach-title">${ach.title}</div>
+                            <div class="ach-desc">${ach.desc}</div>
+                        </div>
+                        <div class="ach-status">${unlocked ? '[ ПОЛУЧЕНО ]' : '[ ЗАКРЫТО ]'}</div>
+                    </div>
+                `;
+            });
         }
 
-        // 4. Секретный клик по заголовку
-        let secretClicks = 0;
-        function clickSecret() {
-            secretClicks++;
-            if (secretClicks === 5) {
-                document.getElementById("player-level").innerText = "[LVL 99]";
-                showAchievement("Секрет найден! Level Max");
+        // Верификация
+        function verifyCode() {
+            let code = document.getElementById("input-code").value.trim();
+            if (code === "GODOT2026") {
+                userState.isVerified = true;
+                unlockAch('verified');
+                saveData();
+                showAchievementPopup("Галочка получена!");
+            } else {
+                alert("Неверный код верификации!");
             }
         }
 
-        // 5. Клик по кнопке играть
-        function clickPlay() {
-            showAchievement("Переход к проекту...");
+        // Сохранение модалки
+        function saveProfileData() {
+            userState.name = document.getElementById("input-name").value;
+            userState.avatar = document.getElementById("input-avatar").value || userState.avatar;
+            userState.banner = document.getElementById("input-banner").value || userState.banner;
+            userState.bio = document.getElementById("input-bio").value;
+            unlockAch('profile_setup');
+            saveData();
+            closeModal('profile-modal');
         }
 
-        // 6. Анимированный заголовок вкладки
-        let docTitle = document.title;
-        window.addEventListener("blur", () => {
-            document.title = "[ СИСТЕМА ЖДЕТ... ]";
-        });
-        window.addEventListener("focus", () => {
-            document.title = docTitle;
-        });
+        // Окна
+        function openModal(id) {
+            document.getElementById(id).classList.add("active");
+            if (id === 'ach-modal') unlockAch('ach_viewer');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove("active"); }
 
-        // 7. Таймер сессии (Uptime Counter)
+        // События
+        let secretClicks = 0;
+        function clickSecret() {
+            secretClicks++;
+            if (secretClicks >= 5) unlockAch('secret_click');
+        }
+
+        function clickPlay() { unlockAch('play_click'); }
+
+        // Таймер
         let sec = 0;
         setInterval(() => {
             sec++;
             document.getElementById("timer").innerText = sec;
-            
-            // Ачивка за пробытие на сайте 1 минуту
-            if (sec === 60 && !localStorage.getItem("ach_time")) {
-                localStorage.setItem("ach_time", "true");
-                showAchievement("Исследователь (1 мин на сайте)");
-            }
+            if (sec === 60) unlockAch('time_1m');
+            if (sec === 300) unlockAch('time_5m');
         }, 1000);
 
-        // 8. Динамический год в футере
         document.getElementById("year").innerText = new Date().getFullYear();
+        loadData();
     </script>
-
 </body>
 </html>
