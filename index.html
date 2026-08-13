@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Игры</title>
     <style>
+        /* 11. Плавный Fade-in при загрузке страницы */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 10. Кастомный Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #222; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff3333; }
+
         body {
             background-color: #0a0a0a;
             color: #e0e0e0;
@@ -15,68 +27,94 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
+            animation: fadeIn 1s ease-in-out;
+            /* 17. Запрет случайного выделения текста */
+            user-select: none;
         }
 
-        /* Эффект старого CRT-монитора (сканирующие полосы) */
+        /* Эффект CRT-монитора */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
             background-size: 100% 4px;
             z-index: 10;
             pointer-events: none;
             opacity: 0.7;
         }
 
-        /* Заголовок с атмосферным мерцанием */
+        /* 13. Системный информер в углу */
+        .sys-info {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            font-size: 0.7rem;
+            color: #444;
+            letter-spacing: 1px;
+            z-index: 5;
+        }
+
+        /* 1. Глитч-эффект на заголовке + 8. Терминальный курсор */
         h1 {
             letter-spacing: 6px;
             text-transform: uppercase;
             font-size: 2.2rem;
             margin-bottom: 30px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            animation: flicker 4s infinite;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            position: relative;
+            cursor: pointer;
         }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-            52% { opacity: 0.3; }
-            54% { opacity: 0.9; }
-            80% { opacity: 0.9; }
-            82% { opacity: 0.4; }
-            83% { opacity: 1; }
+        h1::after {
+            content: '_';
+            animation: blink 1s infinite;
+            color: #ff3333;
         }
 
-        /* Карточка игры */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* 2. Пиксельная обводка и 19. Внутреннее свечение */
         .game-card {
-            background-color: #121212;
+            background: radial-gradient(circle at center, #151515 0%, #101010 100%);
             border: 1px solid #2a2a2a;
+            outline: 1px solid #111;
             max-width: 520px;
             width: 100%;
             padding: 25px;
             text-align: center;
             box-shadow: 0 0 20px rgba(0,0,0,0.9);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.3s ease;
             position: relative;
             z-index: 1;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
-        /* Красная неоновая подсветка при наведении */
         .game-card:hover {
             border-color: #ff3333;
             box-shadow: 0 0 25px rgba(255, 51, 51, 0.25);
             transform: translateY(-4px);
         }
 
-        /* Место под гифку/трейлер */
+        /* 3. Статус проекта */
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 0.65rem;
+            background: #1a0000;
+            color: #ff3333;
+            border: 1px solid #ff3333;
+            padding: 3px 6px;
+            letter-spacing: 1px;
+        }
+
+        /* 12. Анимация превью */
         .game-preview {
             width: 100%;
             height: 220px;
@@ -86,7 +124,7 @@
             align-items: center;
             justify-content: center;
             color: #555;
-            margin-bottom: 20px;
+            margin: 15px 0 20px 0;
             font-size: 0.85rem;
             overflow: hidden;
         }
@@ -95,6 +133,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .game-card:hover .game-preview img {
+            transform: scale(1.05);
         }
 
         .game-title {
@@ -102,28 +145,56 @@
             color: #fff;
             margin: 0 0 10px 0;
             letter-spacing: 2px;
+            text-align: left;
         }
 
         .game-description {
             font-size: 0.88rem;
             color: #888;
             line-height: 1.6;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            text-align: left;
         }
 
-        /* Кнопка */
+        /* 5. Теги технологий */
+        .tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            color: #555;
+            background: #080808;
+            border: 1px solid #222;
+            padding: 2px 6px;
+        }
+
+        /* 14. Индикатор платформ */
+        .platform-info {
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        /* 4 & 18. Анимированная кнопка с откликом на клик */
         .btn {
-            display: inline-block;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
             color: #ff3333;
             text-decoration: none;
             border: 1px solid #ff3333;
-            padding: 12px 24px;
+            padding: 12px 0;
             font-weight: bold;
             font-size: 0.85rem;
             letter-spacing: 2px;
             transition: all 0.2s ease;
             background: transparent;
             cursor: pointer;
+            text-align: center;
         }
 
         .btn:hover {
@@ -132,8 +203,20 @@
             box-shadow: 0 0 12px #ff3333;
         }
 
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 20. Разделители */
+        .divider {
+            border: none;
+            border-top: 1px dashed #222;
+            margin: 20px 0;
+        }
+
+        /* 15 & 16. Футер и мобильная адаптивность */
         footer {
-            margin-top: 30px;
+            margin-top: 20px;
             font-size: 0.8rem;
             color: #444;
             z-index: 1;
@@ -143,35 +226,66 @@
             color: #666;
             text-decoration: none;
             margin: 0 10px;
-            transition: color 0.2s;
+            transition: all 0.2s;
         }
 
         footer a:hover {
             color: #ff3333;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6rem; }
+            .game-card { padding: 15px; }
+            .game-preview { height: 160px; }
         }
     </style>
 </head>
 <body>
 
+    <div class="sys-info">SYS_STATUS: ONLINE // GODOT_ENGINE</div>
+
     <h1>МОИ ИГРЫ</h1>
 
+    <!-- Карточка 1 -->
     <div class="game-card">
+        <div class="status-badge">[ DEMO ]</div>
+        
         <div class="game-preview">
-            <div class="game-preview"><img src="game.gif"></div>
             [ ТРЕЙЛЕР / GIF ИГРЫ ]
         </div>
         
         <h2 class="game-title">Название Игры</h2>
+        
+        <div class="tags">
+            <span class="tag">Godot 4</span>
+            <span class="tag">GDScript</span>
+            <span class="tag">Horror</span>
+        </div>
+
         <p class="game-description">
-            Мрачный проект на Godot с использованием GDScript. Описание механики, сюжета или атмосферы игры.
+            Мрачный проект на Godot. Напишите здесь пару слов о механике, сюжете или атмосфере вашей игры.
         </p>
+
+        <div class="platform-info">ПЛАТФОРМА: [ PC / WEB ]</div>
         
         <a href="https://itch.io" class="btn" target="_blank">ИГРАТЬ / СКАЧАТЬ</a>
     </div>
 
+    <!-- 9. Шаблон для Вашей Второй Игры (раскомментируйте, когда понадобится)
+    <div class="game-card">
+        <div class="status-badge">[ IN DEV ]</div>
+        <div class="game-preview">[ PREVIEW ]</div>
+        <h2 class="game-title">Проект #2</h2>
+        <div class="tags"><span class="tag">Godot</span></div>
+        <p class="game-description">Описание второго проекта...</p>
+        <a href="#" class="btn">SKOPO...</a>
+    </div>
+    -->
+
     <footer>
-        <a href="https://itch.io" target="_blank">Itch.io</a> | 
-        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="https://itch.io" target="_blank" title="Мой профиль на Itch">Itch.io</a> | 
+        <a href="https://github.com" target="_blank" title="Исходный код на GitHub">GitHub</a>
     </footer>
 
 </body>
