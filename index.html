@@ -19,11 +19,9 @@
             box-sizing: border-box;
             position: relative;
             overflow-x: hidden;
-            /* Кастомный крестообразный курсор */
-            cursor: crosshair;
         }
 
-        /* Эффект старого CRT-монитора */
+        /* Эффект старого CRT-монитора (сканирующие полосы) */
         body::before {
             content: " ";
             display: block;
@@ -36,7 +34,7 @@
             opacity: 0.7;
         }
 
-        /* Заголовок с легким эффектом мерцания */
+        /* Заголовок с атмосферным мерцанием */
         h1 {
             letter-spacing: 6px;
             text-transform: uppercase;
@@ -56,27 +54,6 @@
             83% { opacity: 1; }
         }
 
-        /* Кнопка переключения аудио */
-        .audio-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #111;
-            border: 1px solid #333;
-            color: #888;
-            padding: 8px 12px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            cursor: pointer;
-            z-index: 20;
-            transition: all 0.2s;
-        }
-
-        .audio-control:hover {
-            border-color: #ff3333;
-            color: #fff;
-        }
-
         /* Карточка игры */
         .game-card {
             background-color: #121212;
@@ -92,6 +69,7 @@
             margin-bottom: 20px;
         }
 
+        /* Красная неоновая подсветка при наведении */
         .game-card:hover {
             border-color: #ff3333;
             box-shadow: 0 0 25px rgba(255, 51, 51, 0.25);
@@ -133,7 +111,7 @@
             margin-bottom: 25px;
         }
 
-        /* Анимированная кнопка */
+        /* Кнопка */
         .btn {
             display: inline-block;
             color: #ff3333;
@@ -175,23 +153,17 @@
 </head>
 <body>
 
-    <!-- Переключатель звука в углу -->
-    <button class="audio-control" onclick="toggleAudio()">[ 🔊 SOUND: OFF ]</button>
-
-    <!-- Фоновая музыка (замените audio.mp3 на ваш файл при наличии) -->
-    <audio id="bg-audio" loop>
-        <source src="audio.mp3" type="audio/mpeg">
-    </audio>
-
     <h1>МОИ ИГРЫ</h1>
 
     <div class="game-card">
-        <div class="game-preview"><img src="game.gif"></div>
+        <div class="game-preview">
+            <!-- Чтобы вставить гифку, замените строчку ниже на: <img src="game.gif" alt="Game GIF"> -->
+            [ ТРЕЙЛЕР / GIF ИГРЫ ]
         </div>
         
         <h2 class="game-title">Название Игры</h2>
         <p class="game-description">
-            Мрачный проект на Godot с использованием GDScript. Описание механики, сюжета или атмосфера игры.
+            Мрачный проект на Godot с использованием GDScript. Описание механики, сюжета или атмосферы игры.
         </p>
         
         <a href="https://itch.io" class="btn" target="_blank">ИГРАТЬ / СКАЧАТЬ</a>
@@ -202,25 +174,5 @@
         <a href="https://github.com" target="_blank">GitHub</a>
     </footer>
 
-    <script>
-        let audio = document.getElementById("bg-audio");
-        let btn = document.querySelector(".audio-control");
-        let playing = false;
-
-        function toggleAudio() {
-            if (!playing) {
-                audio.play().then(() => {
-                    btn.innerText = "[ 🔊 SOUND: ON ]";
-                    playing = true;
-                }).catch(() => {
-                    btn.innerText = "[ ❌ NO AUDIO FILE ]";
-                });
-            } else {
-                audio.pause();
-                btn.innerText = "[ 🔊 SOUND: OFF ]";
-                playing = false;
-            }
-        }
-    </script>
 </body>
 </html>
