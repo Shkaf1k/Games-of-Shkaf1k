@@ -2,32 +2,157 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Игры</title>
     <style>
+        /* Темный фон и пиксельный/моноширинный шрифт */
         body {
-            background-color: #111;
-            color: #fff;
-            font-family: monospace;
-            text-align: center;
-            padding: 50px;
-        }
-        .game-card {
-            border: 1px solid #333;
-            margin: 20px auto;
-            max-width: 500px;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            background: #1a1a1a;
+            box-sizing: border-box;
+            position: relative;
+            overflow-x: hidden;
         }
-        a { color: #ff4757; text-decoration: none; font-weight: bold; }
+
+        /* Эффект старого CRT-монитора (сканирующие полосы) */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        h1 {
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Контейнер карточки игры */
+        .game-card {
+            background-color: #121212;
+            border: 1px solid #2a2a2a;
+            max-width: 500px;
+            width: 100%;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Эффект при наведении на карточку */
+        .game-card:hover {
+            border-color: #ff3333;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+            transform: translateY(-3px);
+        }
+
+        /* Плейсхолдер для гифки/скриншота игры */
+        .game-preview {
+            width: 100%;
+            height: 200px;
+            background-color: #050505;
+            border: 1px dashed #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            object-fit: cover;
+        }
+
+        .game-title {
+            font-size: 1.4rem;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            font-size: 0.9rem;
+            color: #888;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* Кнопка */
+        .btn {
+            display: inline-block;
+            color: #ff3333;
+            text-decoration: none;
+            border: 1px solid #ff3333;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .btn:hover {
+            background-color: #ff3333;
+            color: #000;
+            box-shadow: 0 0 10px #ff3333;
+            cursor: pointer;
+        }
+
+        /* Подвал со ссылками на социалки/itch.io */
+        footer {
+            margin-top: 50px;
+            font-size: 0.8rem;
+            color: #444;
+            z-index: 1;
+        }
+
+        footer a {
+            color: #666;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            color: #fff;
+        }
     </style>
 </head>
 <body>
-    <h1>МОИ ИГРЫ</h1>
-    
+
+    <h1>Мои Игры</h1>
+
     <div class="game-card">
-        <h2>Название игры</h2>
-        <p>Краткое описание вашей игры на Godot.</p>
-        <a href="ССЫЛКА_НА_СКАЧИВАНИЕ_ИЛИ_ИГРУ">Играть / Скачать</a>
+        <!-- Сюда можно вставить <img> с GIF или превью вашей игры -->
+        <div class="game-preview">[ ТРЕЙЛЕР / GIF ИГРЫ ]</div>
+        
+        <h2 class="game-title">Название игры</h2>
+        <p class="game-description">
+            Краткое описание вашей игры на Godot. Напишите пару предложений про жанр, атмосферу или сюжет.
+        </p>
+        
+        <a href="https://itch.io" class="btn" target="_blank">ИГРАТЬ / СКАЧАТЬ</a>
     </div>
+
+    <footer>
+        <a href="https://itch.io" target="_blank">Itch.io</a> | 
+        <a href="https://github.com" target="_blank">GitHub</a>
+    </footer>
+
 </body>
 </html>
