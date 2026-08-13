@@ -111,6 +111,71 @@
             margin-left: 2px;
         }
 
+        /* Боковые панели (Декор + Друзья) */
+        .side-panel {
+            position: fixed;
+            top: 80px;
+            width: 200px;
+            background: #0d0d0d;
+            border: 1px solid #222;
+            padding: 12px;
+            font-size: 0.75rem;
+            z-index: 12;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .side-left { left: 20px; }
+        .side-right { right: 20px; }
+
+        .side-title {
+            color: #ff3333;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 4px;
+            font-weight: bold;
+        }
+
+        /* Список друзей */
+        .friends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #121212;
+            padding: 4px 6px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .friend-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .friend-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 2px;
+            object-fit: cover;
+        }
+
+        .friend-remove {
+            color: #555;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .friend-remove:hover { color: #ff3333; }
+
         /* Модальные окна */
         .modal {
             display: none;
@@ -194,6 +259,13 @@
             font-size: 0.8rem;
         }
 
+        .form-group input[type="file"] {
+            border: none;
+            padding: 2px 0;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
         .form-group input:focus, .form-group textarea:focus {
             border-color: #ff3333;
             outline: none;
@@ -272,11 +344,40 @@
         footer a { color: #666; text-decoration: none; margin: 0 10px; }
         footer a::before { content: '['; } footer a::after { content: ']'; }
         .uptime { margin-top: 15px; font-size: 0.65rem; color: #333; }
+
+        @media (max-width: 1024px) {
+            .side-panel { display: none; }
+        }
     </style>
 </head>
 <body>
 
     <div class="sys-info">SYS_STATUS: ONLINE // GODOT_ENGINE</div>
+
+    <!-- Левая панель (Декор / Виджет) -->
+    <div class="side-panel side-left">
+        <div class="side-title">⚡ СИСТЕМА</div>
+        <div style="color:#666; font-size:0.7rem; line-height:1.5;">
+            > CPU: 100%<br>
+            > MEMORY: OK<br>
+            > NETWORK: READY<br>
+            > ENGINE: GODOT 4.x<br>
+            <br>
+            <span style="color:#ff3333;">[СЕССИЯ АКТИВНА]</span>
+        </div>
+    </div>
+
+    <!-- Правая панель (Друзья) -->
+    <div class="side-panel side-right">
+        <div class="side-title">👥 ДРУЗЬЯ</div>
+        <div class="friends-list" id="friends-list">
+            <!-- Друзья будут подгружаться через JS -->
+        </div>
+        <div style="display:flex; gap:4px;">
+            <input type="text" id="friend-name-input" placeholder="Имя друга..." style="width:100%; background:#050505; border:1px solid #333; color:#fff; font-size:0.7rem; padding:4px;">
+            <button class="nav-btn" onclick="addFriend()">+</button>
+        </div>
+    </div>
 
     <!-- Шапка профиля -->
     <div class="top-nav">
@@ -308,14 +409,17 @@
                 <label>НИКНЕЙМ:</label>
                 <input type="text" id="input-name" value="Guest">
             </div>
+            
+            <!-- Поля загрузки локальных файлов -->
             <div class="form-group">
-                <label>URL АВАТАРКИ:</label>
-                <input type="text" id="input-avatar" placeholder="https://site.com/image.png">
+                <label>ЗАГРУЗИТЬ АВАТАРКУ (С ПК/ТЕЛЕФОНА):</label>
+                <input type="file" id="file-avatar" accept="image/*">
             </div>
             <div class="form-group">
-                <label>URL БАННЕРА:</label>
-                <input type="text" id="input-banner" placeholder="https://site.com/banner.png">
+                <label>ЗАГРУЗИТЬ БАННЕР (С ПК/ТЕЛЕФОНА):</label>
+                <input type="file" id="file-banner" accept="image/*">
             </div>
+
             <div class="form-group">
                 <label>О СЕБЕ (BIO):</label>
                 <textarea id="input-bio" rows="2" placeholder="Ваше описание..."></textarea>
@@ -376,10 +480,14 @@
     </footer>
 
     <script>
-        // Список ачивок
+        // Расширенный список ачивок
         const ACHIEVEMENTS = [
             { id: 'first_visit', title: 'Первый Визит', desc: 'Зайти на сайт впервые', icon: '🚪' },
             { id: 'profile_setup', title: 'Личность', desc: 'Настроить собственный профиль', icon: '👤' },
+            { id: 'upload_avatar', title: 'Свой Стиль', desc: 'Загрузить аватарку с ПК', icon: '🖼️' },
+            { id: 'upload_banner', title: 'Декоратор', desc: 'Установить баннер профиля', icon: '🎨' },
+            { id: 'first_friend', title: 'Дружелюбный', desc: 'Добавить первого друга в список', icon: '🤝' },
+            { id: 'squad', title: 'Банда', desc: 'Собрать 3 и более друзей', icon: '👥' },
             { id: 'time_1m', title: 'Исследователь', desc: 'Провести на сайте 1 минуту', icon: '⏱️' },
             { id: 'time_5m', title: 'Зависание', desc: 'Провести на сайте 5 минут', icon: '⏳' },
             { id: 'play_click', title: 'Геймер', desc: 'Нажать на кнопку "Играть"', icon: '🎮' },
@@ -394,15 +502,19 @@
             banner: "https://picsum.photos/id/1060/500/200",
             bio: "Игрок системы.",
             isVerified: false,
-            unlockedAch: []
+            unlockedAch: [],
+            friends: [
+                { name: "CyberGamer", avatar: "https://picsum.photos/id/1012/50/50" }
+            ]
         };
 
         // Загрузка
         function loadData() {
             let saved = localStorage.getItem("user_system_data");
-            if (saved) userState = JSON.parse(saved);
+            if (saved) {
+                userState = Object.assign(userState, JSON.parse(saved));
+            }
             
-            // Ачивка за визит
             unlockAch('first_visit');
             updateUI();
         }
@@ -420,14 +532,64 @@
             document.getElementById("modal-banner").style.backgroundImage = `url('${userState.banner}')`;
             
             document.getElementById("input-name").value = userState.name;
-            document.getElementById("input-avatar").value = userState.avatar;
-            document.getElementById("input-banner").value = userState.banner;
             document.getElementById("input-bio").value = userState.bio;
 
             let verBadges = [document.getElementById("chip-verified"), document.getElementById("modal-verified")];
             verBadges.forEach(el => el.style.display = userState.isVerified ? "inline" : "none");
 
             renderAchievements();
+            renderFriends();
+        }
+
+        // Вспомогательная функция считывания файла
+        function readFileAsDataURL(file) {
+            return new Promise((resolve) => {
+                if (!file) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Логика друзей
+        function renderFriends() {
+            let container = document.getElementById("friends-list");
+            container.innerHTML = "";
+            userState.friends.forEach((friend, idx) => {
+                container.innerHTML += `
+                    <div class="friend-item">
+                        <div class="friend-info">
+                            <img src="${friend.avatar}" class="friend-avatar" alt="avatar">
+                            <span>${friend.name}</span>
+                        </div>
+                        <span class="friend-remove" onclick="removeFriend(${idx})">✕</span>
+                    </div>
+                `;
+            });
+        }
+
+        function addFriend() {
+            let input = document.getElementById("friend-name-input");
+            let name = input.value.trim();
+            if (name !== "") {
+                let randomId = Math.floor(Math.random() * 800);
+                userState.friends.push({
+                    name: name,
+                    avatar: `https://picsum.photos/id/${randomId}/50/50`
+                });
+                input.value = "";
+                unlockAch('first_friend');
+                if (userState.friends.length >= 3) unlockAch('squad');
+                saveData();
+            }
+        }
+
+        function removeFriend(index) {
+            userState.friends.splice(index, 1);
+            saveData();
         }
 
         // Ачивки логика
@@ -478,18 +640,32 @@
             }
         }
 
-        // Сохранение модалки
-        function saveProfileData() {
+        // Сохранение профиля (с подгрузкой локальных файлов)
+        async function saveProfileData() {
+            let avatarFile = document.getElementById("file-avatar").files[0];
+            let bannerFile = document.getElementById("file-banner").files[0];
+
+            let newAvatar = await readFileAsDataURL(avatarFile);
+            let newBanner = await readFileAsDataURL(bannerFile);
+
+            if (newAvatar) {
+                userState.avatar = newAvatar;
+                unlockAch('upload_avatar');
+            }
+            if (newBanner) {
+                userState.banner = newBanner;
+                unlockAch('upload_banner');
+            }
+
             userState.name = document.getElementById("input-name").value;
-            userState.avatar = document.getElementById("input-avatar").value || userState.avatar;
-            userState.banner = document.getElementById("input-banner").value || userState.banner;
             userState.bio = document.getElementById("input-bio").value;
+            
             unlockAch('profile_setup');
             saveData();
             closeModal('profile-modal');
         }
 
-        // Окна
+        // Модальные окна
         function openModal(id) {
             document.getElementById(id).classList.add("active");
             if (id === 'ach-modal') unlockAch('ach_viewer');
