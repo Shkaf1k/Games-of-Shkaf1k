@@ -536,13 +536,17 @@
             bio: "Игрок системы.",
             isVerified: false,
             unlockedAch: [],
-            friends: [] // Здесь хранятся разобранные профили друзей
+            friends: []
         };
 
         function loadData() {
             let saved = localStorage.getItem("user_system_data_b64");
             if (saved) {
-                userState = Object.assign(userState, JSON.parse(saved));
+                try {
+                    userState = Object.assign(userState, JSON.parse(saved));
+                } catch(e) {
+                    console.error("Ошибка чтения памяти", e);
+                }
             }
             unlockAch('first_visit');
             updateUI();
@@ -553,7 +557,6 @@
             updateUI();
         }
 
-        // Генерация Base64-кода именно твоего формата
         function generateMyBase64Code() {
             let payload = {
                 name: userState.name,
@@ -566,11 +569,30 @@
             return utf8_to_b64(JSON.stringify(payload));
         }
 
+        // Безопасное копирование кода в буфер
         function copyMyCode() {
             let code = generateMyBase64Code();
-            navigator.clipboard.writeText(code).then(() => {
-                alert("Твой Base64-код скопирован в буфер обмена! Отправь его другу.");
-            });
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert("Твой Base64-код скопирован! Отправь его другу.");
+                }).catch(() => fallbackCopy(code));
+            } else {
+                fallbackCopy(code);
+            }
+        }
+
+        function fallbackCopy(text) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("Твой Base64-код скопирован! Отправь его другу.");
+            } catch (err) {
+                prompt("Скопируй этот код вручную:", text);
+            }
+            document.body.removeChild(textArea);
         }
 
         function addFriendByCode() {
@@ -580,9 +602,8 @@
 
             try {
                 let friendObj = JSON.parse(b64_to_utf8(code));
-                if (!friendObj.name) throw new Error();
+                if (!friendObj || !friendObj.name) throw new Error("Неверная структура");
 
-                // Проверка на дубликат по имени
                 if (userState.friends.some(f => f.name === friendObj.name)) {
                     alert("Игрок с таким именем уже есть в твоем списке!");
                     return;
@@ -636,7 +657,7 @@
             let container = document.getElementById("friends-list");
             container.innerHTML = "";
 
-            if (userState.friends.length === 0) {
+            if (!userState.friends || userState.friends.length === 0) {
                 container.innerHTML = `<div style="color:#444; font-size:0.65rem;">Список пуст</div>`;
                 return;
             }
